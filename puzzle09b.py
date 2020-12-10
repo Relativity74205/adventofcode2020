@@ -12,7 +12,6 @@ data = list(map(int, raw_data))
 target_number = 20874512
 
 
-@lru_cache(maxsize=None)
 def get_sum(start: int, end: int) -> int:
     return sum(data[start: end + 1])
 
