@@ -6,8 +6,7 @@ import numpy as np
 with open(Path(__file__).parent / "data" / "puzzle11.txt", "r") as f:
     raw_data = f.read().splitlines()
 
-seatplan = [list(line) for line in raw_data]
-seatplan = np.array(seatplan)
+seatplan = np.array([list(line) for line in raw_data])
 seatplan = np.where(seatplan == 'L', 0, -1)
 x_max, y_max = seatplan.shape
 
