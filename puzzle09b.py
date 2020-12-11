@@ -13,6 +13,9 @@ for i in range(0, len(raw_data)):
     subtotal = 0
     for j in range(i, len(raw_data)):
         subtotal += data[j]
-        if target_number == subtotal:
+        if subtotal == target_number:
             print(f'start: {data[i]}; end: {data[j]}; sum: {data[i] + data[j]}')
             sys.exit(0)
+        elif subtotal > target_number:
+            break
+
