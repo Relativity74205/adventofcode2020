@@ -9,7 +9,8 @@ with open(Path(__file__).parent / "data" / "puzzle01.txt", "r") as f:
 
 # data_sorted = sorted([int(number) for number in data])
 
-small_numbers = [int(number) for number in data if int(number) <= math.ceil(target_number / 2)]
+
+ = [int(number) for number in data if int(number) <= math.ceil(target_number / 2)]
 large_numbers = [int(number) for number in data if int(number) >= math.floor(target_number / 2)]
 
 for small_number in small_numbers:

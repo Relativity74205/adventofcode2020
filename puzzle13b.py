@@ -1,18 +1,16 @@
 from functools import reduce
 from pathlib import Path
-from typing import Dict
+from typing import List
 
 
 with open(Path(__file__).parent / "data" / "puzzle13.txt", "r") as f:
-    data = f.read().splitlines()
+    raw_data = f.read().splitlines()
 
 
-entries = data[1].split(',')
-
-lines_dict = {int(entry): i for i, entry in enumerate(entries) if entry != 'x'}
+entries = raw_data[1].split(',')
 
 
-def sub_solution(sub_solution: int, new_n: int, lcm_sub: int, delay: int):
+def find_sub_solution(sub_solution: int, new_n: int, lcm_sub: int, delay: int):
     i = 0
     while True:
         i += 1
@@ -21,22 +19,29 @@ def sub_solution(sub_solution: int, new_n: int, lcm_sub: int, delay: int):
             return candidate
 
 
-def solution(lines_dict: Dict) -> int:
-    lines = list(lines_dict.keys())
-    time = None
+def find_solution(lines_dict, lines):
+    solution = None
     for i in range(len(lines) - 1):
-        if not time:
-            time = lines[i]
-        n1 = lines[i]
-        n2 = lines[i + 1]
-        delta = lines_dict[lines[i + 1]]
-        lcm = reduce(lambda a, b: a * b, lines[:(i+1)])
-        time = sub_solution(time, n2, lcm, delta)
+        if not solution:
+            solution = lines[i]
+        new_n = lines[i + 1]
+        delay = lines_dict[lines[i + 1]]
+        lcm = reduce(lambda a, b: a * b, lines[:(i + 1)])
+        solution = find_sub_solution(solution, new_n, lcm, delay)
 
-    return time
+    return solution
 
 
-solution = solution(lines_dict)
+def solve(data: List) -> int:
+    lines_dict = {int(entry): i for i, entry in enumerate(data) if entry != 'x'}
+    lines = list(lines_dict.keys())
 
-print(f'{solution=}')
+    solution = find_solution(lines_dict, lines)
+
+    return solution
+
+
+final_solution = solve(entries)
+
+print(f'{final_solution=}')
 # 487905974205117
