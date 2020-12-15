@@ -46,5 +46,5 @@ for mask, memory_value in data_groups.items():
             mem[key] = value
 
 
-total_sum = reduce(add, mem.values())
+total_sum = sum(mem.values())
 print(f'{total_sum=}')

@@ -29,5 +29,5 @@ for mask, memory_value in data_groups.items():
     for address, value in memory_value.items():
         mem[address] = process(mask, value)
 
-total_sum = reduce(lambda a, b: a+b, map(lambda a: int(a, 2), mem.values()))
+total_sum = sum(map(lambda a: int(a, 2), mem.values()))
 print(f'{total_sum=}')
