@@ -1,7 +1,6 @@
 import re
 from pathlib import Path
 from collections import defaultdict
-from functools import reduce
 
 
 with open(Path(__file__).parent / "data" / "puzzle14.txt", "r") as f:
