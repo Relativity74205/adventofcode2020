@@ -1,4 +1,5 @@
 from pathlib import Path
+from itertools import product
 
 import numpy as np
 
@@ -15,16 +16,15 @@ grid_arr = np.pad(grid_arr, 1, 'constant', constant_values=0)
 def perform_cycle(arr):
     arr = np.pad(arr, 1, 'constant', constant_values=0)
     arr_copy = arr.copy()
-    for x in range(1, arr.shape[0]):
-        for y in range(1, arr.shape[1]):
-            for z in range(1, arr.shape[2]):
-                active_neighbors = arr[x - 1:x + 2, y - 1:y + 2, z - 1:z + 2].sum() - arr[x, y, z]
-                if arr[x, y, z]:
-                    if not 2 <= active_neighbors <= 3:
-                        arr_copy[x, y, z] = 0
-                else:
-                    if active_neighbors == 3:
-                        arr_copy[x, y, z] = 1
+    for coord in product(*([range(1, dim) for dim in arr.shape])):
+        neighbor_window = tuple([slice(dim - 1, dim + 2) for dim in coord])
+        active_neighbors = arr[neighbor_window].sum() - arr[coord]
+        if arr[coord]:
+            if not 2 <= active_neighbors <= 3:
+                arr_copy[coord] = 0
+        else:
+            if active_neighbors == 3:
+                arr_copy[coord] = 1
 
     return arr_copy
 
