@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Iterator, Dict
 from functools import reduce
-from operator import add
+from operator import mul
 from collections import Counter
+from copy import deepcopy
 
 with open(Path(__file__).parent / "data" / "puzzle16.txt", "r") as f:
     raw_data = f.read().splitlines()
@@ -26,6 +27,7 @@ your_ticket_row = int([i for i, row in enumerate(raw_data) if row.startswith('yo
 nearby_ticket_rows = int([i for i, row in enumerate(raw_data) if row.startswith('nearby tickets')][0]) + 1
 
 your_ticket_data = raw_data[your_ticket_row]
+your_ticket_data_list = list(map(int, your_ticket_data.split(',')))
 
 nearby_ticket_data = [row for row in raw_data[nearby_ticket_rows:]]
 
@@ -51,7 +53,7 @@ def validate_ticket(values: Iterator[int]) -> int:
     return sum(fields)
 
 
-def valid_possibility(col, possibility):
+def valid_possibility(col: int, possibility: str):
     possibility_range = ranges[possibility]
     for valid_ticket in valid_tickets:
         ticket_value = valid_ticket[col]
@@ -61,28 +63,28 @@ def valid_possibility(col, possibility):
     return True
 
 
-tickets_check = {i: validate_ticket(map(int, ticket.split(','))) for i, ticket in enumerate(nearby_ticket_data)}
-valid_tickets = [list(map(int, ticket.split(','))) for error_rate, ticket in zip(tickets_check.values(), nearby_ticket_data) if error_rate == 0]
-
-field_possibilities = {pos: list(ranges.keys()) for pos in range(len(your_ticket_data.split(',')))}
-
-
 def remove_possibilities(possibilities):
-    possibilities_copy = possibilities.copy()
-    for col, col_possibilities in possibilities.items():
-        for possibility in col_possibilities:
-            if not valid_possibility(col, possibility):
-                possibilities_copy[col].remove(possibility)
+    possibilities_copy = deepcopy(possibilities)
+    for col, fields in possibilities.items():
+        for pos in fields:
+            valid = valid_possibility(col, pos)
+            if valid is False:
+                possibilities_copy[col].remove(pos)
 
     return possibilities_copy
 
 
-def check_only_one():
-    pass
+tickets_check = {i: validate_ticket(map(int, ticket.split(','))) for i, ticket in enumerate(nearby_ticket_data)}
+valid_tickets = [list(map(int, ticket.split(','))) for error_rate, ticket in zip(tickets_check.values(), nearby_ticket_data) if error_rate == 0]
 
+field_possibilities = {pos: list(ranges.keys()) for pos in range(len(your_ticket_data.split(',')))}
+field_possibilities_cleaned = remove_possibilities(field_possibilities)
 
-# solution = {col: {'possibilities': possibilities,
-#                   'cnt_solutions': len(possibilities)} for col, possibilities in solution.items()}
+# for col, fields in field_possibilities_cleaned.items():
+#     for field in fields:
+#         valid = valid_possibility(col, field)
+#         if valid is False:
+#             print(col, field)
 
 
 def get_shortest_col(sol) -> int:
@@ -99,13 +101,14 @@ def get_shortest_col(sol) -> int:
 
 
 def strip_possibilities(sol):
-    finished_cols = [col for col, pos in sol.items() if len(pos) == 1]
-    for finished_col in finished_cols:
-        finished_col_name = sol[finished_col][0]
-        for col, pos in sol.items():
-            if col != finished_col:
+    for col in sol.keys():
+        if len(sol[col]) == 1:
+            for current_col, pos in sol.items():
+                if len(sol[col]) == 0 or current_col == col:
+                    continue
+
                 try:
-                    pos.remove(finished_col_name)
+                    pos.remove(sol[col][0])
                 except ValueError:
                     pass
 
@@ -113,37 +116,50 @@ def strip_possibilities(sol):
 
 
 def check_all_one(sol) -> bool:
-    all_one = all([True if len(pos) == 1 else False for pos in sol.values()])
+    all_one = [True if len(pos) == 1 else False for pos in sol.values()]
 
-    return all_one
+    return all(all_one)
 
 
 def check_any_zero(sol) -> bool:
-    any_zero = any([True if len(pos) == 0 else False for pos in sol.values()])
-    return any_zero
+    any_zero = [True if len(pos) == 0 else False for pos in sol.values()]
+    return any(any_zero)
+
+
+def check_valid_solution(sol) -> bool:
+    any_one_non_valid = [valid_possibility(col, field[0])
+                             for col, field in sol.items()
+                             if len(field) == 1]
+
+    return all(any_one_non_valid)
 
 
 def solve(sol):
     if check_all_one(sol):
-        print(sol)
-        return True
+        if check_valid_solution(sol):
+            return sol
+        else:
+            return None
 
     sol_copy = deepcopy(sol)
     shortest_col = get_shortest_col(sol_copy)
-    for field in sol[shortest_col]:
-    # field_cnt = Counter(reduce(add, [d['possibilities'] for d in solution.values()]))
-    # pick_field_pos()
+    field_candidates = sol[shortest_col].copy()
+    for field in field_candidates:
         sol_copy[shortest_col] = [field]
         sol_copy = strip_possibilities(sol_copy)
         if not check_any_zero(sol_copy):
-            if solve(sol_copy):
-                return True
+            sol_candidate = solve(sol_copy)
+            if sol_candidate is not None:
+                return sol_candidate
 
-        sol[shortest_col].remove(field)
+        # sol[shortest_col].remove(field)
+        sol_copy = deepcopy(sol)
 
-    return False
+    return None
 
-from copy import deepcopy
-solution = remove_possibilities(field_possibilities)
-solution_temp = deepcopy(solution)
-final_solution = solve(solution)
+
+final_solution = solve(field_possibilities_cleaned)
+departure_cols = [col for col, field in final_solution.items() if field[0].startswith('departure')]
+
+final_final_solution = reduce(mul, [your_ticket_data_list[col] for col in departure_cols])
+print(f'{final_final_solution=}')
