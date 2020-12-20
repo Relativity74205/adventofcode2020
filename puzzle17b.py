@@ -7,8 +7,7 @@ import numpy as np
 with open(Path(__file__).parent / "data" / "puzzle17.txt", "r") as f:
     raw_data = f.read().splitlines()
 
-data = [list(row) for row in raw_data]
-data = [[cell == '#' for cell in row] for row in data]
+data = [[cell == '#' for cell in list(row)] for row in raw_data]
 grid_arr = np.expand_dims(np.array(data), axis=0)
 grid_arr = np.expand_dims(np.array(grid_arr), axis=0)
 grid_arr = np.pad(grid_arr, 1, 'constant', constant_values=0)
