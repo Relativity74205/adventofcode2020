@@ -8,7 +8,7 @@ with open(Path(__file__).parent / "data" / "puzzle17.txt", "r") as f:
     raw_data = f.read().splitlines()
 
 data = [list(row) for row in raw_data]
-data = [[1 if cell == '#' else 0 for cell in row] for row in data]
+data = [[cell == '#' for cell in row] for row in data]
 grid_arr = np.expand_dims(np.array(data), axis=0)
 grid_arr = np.pad(grid_arr, 1, 'constant', constant_values=0)
 
@@ -20,7 +20,7 @@ def perform_cycle(arr):
         neighbor_window = tuple([slice(dim - 1, dim + 2) for dim in coord])
         active_neighbors = arr[neighbor_window].sum() - arr[coord]
         if arr[coord]:
-            if not 2 <= active_neighbors <= 3:
+            if active_neighbors not in (2, 3):
                 arr_copy[coord] = 0
         else:
             if active_neighbors == 3:
