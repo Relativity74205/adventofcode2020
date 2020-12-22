@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Iterator, Dict
 from functools import reduce
 from operator import mul
-from collections import Counter
 from copy import deepcopy
 
 with open(Path(__file__).parent / "data" / "puzzle16.txt", "r") as f:
