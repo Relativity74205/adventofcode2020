@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 import itertools
 from collections import defaultdict
@@ -20,13 +21,13 @@ tiles = {tile_id: np.array([[1 if char == '#' else 0 for char in row] for row in
 def compare_tiles(t1, t2_combinations):
     for t2_orientation, t2 in t2_combinations.items():
         if np.all(t1[0, :] == t2[-1, :]):
-            return 'o', t2_orientation
-        elif np.all(t1[-1, :] == t2[0, :]):
             return 'u', t2_orientation
+        elif np.all(t1[-1, :] == t2[0, :]):
+            return 'o', t2_orientation
         elif np.all(t1[:, 0] == t2[:, -1]):
-            return 'r', t2_orientation
-        elif np.all(t1[:, -1] == t2[:, 0]):
             return 'l', t2_orientation
+        elif np.all(t1[:, -1] == t2[:, 0]):
+            return 'r', t2_orientation
 
     return None, None
 
@@ -67,7 +68,7 @@ print(f'{reduce(mul, corners)}')  # 59187348943703
 
 
 edge_length = int(np.sqrt(len(tiles)))
-arr = np.zeros((edge_length * 10, edge_length * 10))
+# arr = np.zeros((edge_length * 10, edge_length * 10))
 arr_ids = np.zeros((edge_length, edge_length))
 
 start_corner = [corner for corner in corners if len(all_borders[corner]) == 2][0]
@@ -78,30 +79,32 @@ start_y = 0 if 'u' in start_borders else edge_length - 1
 arr_ids[start_x, start_y] = start_corner
 
 
-def add_tiles(x, y, borders):
-    for border_tile_id, border, orientation in borders:
+def add_tiles(x, y, orientation, borders, arr):
+    for border_tile_id, border, orientation_new in borders:
         x_new = x
         y_new = y
         if border == 'r':
-            x_new += 1
+            delta_x, delta_y = 1, 0
         elif border == 'l':
-            x_new -= 1
+            delta_x, delta_y = -1, 0
         elif border == 'o':
-            y_new -= 1
+            delta_x, delta_y = 0, 1
         else:
-            y_new += 1
-        # border_tile = tiles[border_tile_id]
-        # border_tile = np.rot90(border_tile, int(orientation[0]))
-        # if orientation[-2:] == 'lr':
-        #     border_tile = np.fliplr(border_tile)
-        # elif orientation[-2:] == 'ud':
-        #     border_tile = np.flipud(border_tile)
+            delta_x, delta_y = 0, -1
+        if orientation[-2:] == 'lr':
+            delta_x *= -1
+        if orientation[-2:] == 'ud':
+            delta_y *= -1
+        delta_x *= int(np.cos(math.pi / 2 * int(orientation[0])))
+        delta_y *= int(np.sin(math.pi / 2 * int(orientation[0])))
+        x_new += int(delta_x)
+        y_new += int(delta_y)
 
         arr_ids[x_new, y_new] = border_tile_id
         try:
-            add_tiles(x_new, y_new, all_borders[border_tile_id])
+            add_tiles(x_new, y_new, orientation_new, all_borders[border_tile_id], arr)
         except IndexError:
             pass
 
 
-add_tiles(start_x, start_y, all_borders[start_corner])
+add_tiles(start_x, start_y, '0_no', all_borders[start_corner], arr_ids)
