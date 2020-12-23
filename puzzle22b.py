@@ -23,17 +23,11 @@ def populate_deque(data) -> deque:
 
 player1 = populate_deque(raw_data.split('\n\n')[0])
 player2 = populate_deque(raw_data.split('\n\n')[1])
-game_number = 1
 
 
-def play_game(p1_input: deque, p2_input: deque, game: int) -> (deque, deque):
-    logger.info(f'Starting game number {game}.')
-    p1, p2 = p1_input.copy(), p2_input.copy()
-    p1_decks = set()
-    p2_decks = set()
-    game_round = 1
+def play_game(p1: deque, p2: deque) -> (deque, deque):
+    p1_decks, p2_decks = set(), set()
     while p1 and p2:
-        logger.info(f'Playing round {game_round} of game {game}.')
         if tuple(p1) in p1_decks and tuple(p2) in p2_decks:
             return p1, deque()
         else:
@@ -41,21 +35,16 @@ def play_game(p1_input: deque, p2_input: deque, game: int) -> (deque, deque):
 
         c1, c2 = p1.popleft(), p2.popleft()
         if c1 <= len(p1) and c2 <= len(p2):
-            global game_number
-            game_number += 1
-            p1_sub, p2_sub = play_game(deque(list(p1)[:c1]), deque(list(p2)[:c2]), game_number)
+            p1_sub, p2_sub = play_game(deque(list(p1)[:c1]), deque(list(p2)[:c2]))
             if p1_sub:
                 p1.append(c1), p1.append(c2)
-            elif p2_sub:
-                p2.append(c2), p2.append(c1)
             else:
-                raise RuntimeError('gnargh')
+                p2.append(c2), p2.append(c1)
         else:
             if c1 > c2:
                 p1.append(c1), p1.append(c2)
             else:
                 p2.append(c2), p2.append(c1)
-        game_round += 1
 
     return p1, p2
 
@@ -67,6 +56,6 @@ def get_score(p1: deque, p2: deque) -> int:
     return score
 
 
-player1_end, player2_end = play_game(player1, player2, 1)
+player1_end, player2_end = play_game(player1.copy(), player2.copy())
 game_score = get_score(player1_end, player2_end)
 print(f'{game_score=}')
