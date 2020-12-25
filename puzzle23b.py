@@ -1,66 +1,74 @@
-from collections import deque
-import time
 from typing import List
 
 
 input_list = '193467258'
-# input_list = '389125467'
-moves = 100
-# moves = 10_000_000
+moves = 10_000_000
 amount_labels = 1_000_000
 
 
 class Circle:
     def __init__(self, cups: List):
         self.circle = {}
-        for cup1, cup2 in zip(cups, cups[1:] + cups[0]):
+        self.current_cup = cups[0]
+        for cup1, cup2 in zip(cups, cups[1:] + [cups[0]]):
             self.circle[cup1] = cup2
 
+    def pop_next_cups(self, cup: int, times: int) -> List[int]:
+        cups = []
+        for _ in range(times):
+            next_cup = self.circle[cup]
+            cups.append(next_cup)
+            next_next_cup = self.circle.pop(next_cup)
+            self.circle[cup] = next_next_cup
 
-def get_destination_cup(arr: deque, pick_up_values: List, target_label: int) -> int:
+        return cups
+
+    def insert_cups(self, cup: int, vals: List[int]):
+        for val in reversed(vals):
+            self.circle[cup], self.circle[val] = val, self.circle[cup]
+
+    # def __repr__(self):
+    #     s = ''
+    #     current_cup = 1
+    #     for _ in range(len(self.circle) - 1):
+    #         s += str(self.circle[current_cup])
+    #         current_cup = self.circle[current_cup]
+    #
+    #     return s
+    def __repr__(self):
+        next_cup = self.circle[1]
+        next_next_cup = self.circle[next_cup]
+
+        return f'{next_cup=}, {next_next_cup=}, prod:{next_cup*next_next_cup}'
+
+
+def get_destination_cup(current_cup: int, pick_up_values: List) -> int:
+    target_label = current_cup
     while True:
         target_label -= 1
         if target_label <= 0:
             target_label = amount_labels
         if target_label not in pick_up_values:
-            return arr.index(target_label)
+            return target_label
 
 
-def calc_move(arr: deque) -> deque:
-    current_cup_value = arr[0]
-    arr.rotate(-1)
-    pick_up_values = [arr.popleft() for _ in range(3)]
-    destination_cup_index = get_destination_cup(arr, pick_up_values, current_cup_value)
-    arr.rotate(- destination_cup_index - 1)
-    arr.appendleft(pick_up_values[2])
-    arr.appendleft(pick_up_values[1])
-    arr.appendleft(pick_up_values[0])
-    arr.rotate(-(- destination_cup_index - 1))
+def calc_move(cups: Circle) -> Circle:
+    pick_up_values = cups.pop_next_cups(cups.current_cup, 3)
+    destination_cup = get_destination_cup(cups.current_cup, pick_up_values)
+    cups.insert_cups(destination_cup, pick_up_values)
+    cups.current_cup = cups.circle[cups.current_cup]
 
-    return arr
+    return cups
 
 
-# def get_result(arr: deque) -> str:
-#     pos_one = arr.index(1)
-#     return ''.join([str(arr[(pos_one + 1 + i) % 9]) for i in range(8)])
-
-
-arr_start = deque(list(map(int, input_list)) + list(range(10, amount_labels + 1)))
-arr_output = arr_start.copy()
-
-
-def solve(arr: deque) -> deque:
+def solve(cups: Circle) -> Circle:
     for i in range(moves):
-        print(f'move {i=}')
-        arr = calc_move(arr)
+        cups = calc_move(cups)
 
-    return arr
-
-
-# arr_output = solve(arr_output)
+    return cups
 
 
-# print(f'{get_result(arr_output)=}')
-#  25468379
-import cProfile
-cProfile.run('solve(arr_output)')
+cups_list = list(map(int, input_list)) + list(range(10, amount_labels + 1))
+cups_circle = Circle(cups_list)
+cups_circle = solve(cups_circle)
+print(cups_circle)
