@@ -12,5 +12,5 @@ def check_password_entry(entry: str) -> bool:
     return (password[first_occurrence] == policy_char) != (password[second_occurrence] == policy_char)
 
 
-valid_passwords = [check_password_entry(password_entry) for password_entry in raw_data]
+valid_passwords = (check_password_entry(password_entry) for password_entry in raw_data)
 print(f'{sum(valid_passwords)=}')  # 275

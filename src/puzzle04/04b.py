@@ -1,26 +1,10 @@
-from pathlib import Path
 import re
 
-with open(Path(__file__).parent / "data" / "puzzle04.txt", "r") as f:
-    data = f.read()
-
-
-passports = [ele.replace('\n', ' ') for ele in data.split('\n\n')]
-
-
-mandatory_keys = {'byr',
-                  'iyr',
-                  'eyr',
-                  'hgt',
-                  'hcl',
-                  'ecl',
-                  'pid',
-                  # 'cid',
-                  }
+from puzzle04 import passports, mandatory_keys
 
 
 def check_bounds(val: str, lower_bound: int, upper_bound: int):
-    return lower_bound <= int(val) <= upper_bound
+    return int(val) in range(lower_bound, upper_bound + 1)
 
 
 def check_hcl(hcl: str):
@@ -44,41 +28,38 @@ def check_height(hgt: str):
     return True
 
 
-valid_passports = 0
-for passport in passports:
+def check_password(passport: str) -> bool:
     passport_parts = passport.strip().split(' ')
     passport_dict = {passport_part.split(':')[0]: passport_part.split(':')[1] for passport_part in passport_parts}
 
-    passport_keys = list(passport_dict.keys())
-    try:
-        passport_keys.remove('cid')
-    except ValueError:
-        pass
+    passport_keys = set(passport_dict.keys()).difference({'cid'})
 
-    if not mandatory_keys == set(passport_keys):
-        continue
+    if not mandatory_keys == passport_keys:
+        return False
 
     if not check_bounds(passport_dict['byr'], 1920, 2002):
-        continue
+        return False
 
     if not check_bounds(passport_dict['iyr'], 2010, 2020):
-        continue
+        return False
 
     if not check_bounds(passport_dict['eyr'], 2020, 2030):
-        continue
+        return False
 
     if not passport_dict['ecl'] in ('amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'):
-        continue
+        return False
 
     if not check_pid(passport_dict['pid']):
-        continue
+        return False
 
     if not check_height(passport_dict['hgt']):
-        continue
+        return False
 
     if not check_hcl(passport_dict['hcl']):
-        continue
+        return False
 
-    valid_passports += 1
+    return True
 
-print(f'{valid_passports=}')
+
+valid_passports = (check_password(passport) for passport in passports)
+print(f'{sum(valid_passports)=}')  # 137

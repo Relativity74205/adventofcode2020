@@ -13,5 +13,5 @@ def check_password_entry(entry: str) -> bool:
     return Counter(password)[policy_char] in policy_char_range
 
 
-valid_passwords = [check_password_entry(password_entry) for password_entry in raw_data]
+valid_passwords = (check_password_entry(password_entry) for password_entry in raw_data)
 print(f'{sum(valid_passwords)=}')  # 546
