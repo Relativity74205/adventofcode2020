@@ -1,6 +1,6 @@
-from puzzle01 import solve, data
+from puzzle01 import solve, raw_data
 
 target_number = 2020
 
-solution = solve(target_number, map(int, data), 3)
+solution = solve(target_number, map(int, raw_data), 3)
 print(f'{solution=}')

@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 with open(Path(__file__).parent / "puzzle01.txt", "r") as f:
-    data = f.read().splitlines()
+    raw_data = f.read().splitlines()
 
 
 def solve(target: int, numbers: Iterator[int], amount_numbers):
