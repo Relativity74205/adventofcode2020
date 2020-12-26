@@ -5,7 +5,7 @@ from typing import Iterator
 from pathlib import Path
 
 
-with open(Path(__file__).parent.parent.parent / "data" / "puzzle01.txt", "r") as f:
+with open(Path(__file__).parent / "puzzle01.txt", "r") as f:
     data = f.read().splitlines()
 
 
