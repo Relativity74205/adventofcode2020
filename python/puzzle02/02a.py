@@ -4,11 +4,10 @@ from puzzle02 import raw_data
 
 
 def check_password_entry(entry: str) -> bool:
-    password = entry.split(':')[1].strip()
-    policy = entry.split(':')[0]
-    policy_char = policy.split(' ')[1]
-    policy_char_range_list = policy.split(' ')[0].split('-')
-    policy_char_range = range(int(policy_char_range_list[0]), int(policy_char_range_list[1]) + 1)
+    policy, password = entry.split(': ')
+    policy_char_range_string, policy_char = policy.split(' ')
+    policy_char_range_list = [int(ele) for ele in policy_char_range_string.split('-')]
+    policy_char_range = range(policy_char_range_list[0], policy_char_range_list[1] + 1)
 
     return Counter(password)[policy_char] in policy_char_range
 
