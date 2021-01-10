@@ -1,4 +1,4 @@
-raw_data = readlines("julia/puzzle05/puzzle05.txt")
+raw_data = readlines("data/puzzle05.txt")
 
 const MAX_ROWS = 128
 const MAX_COLS = 8
