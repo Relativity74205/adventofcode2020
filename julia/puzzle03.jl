@@ -1,4 +1,4 @@
-raw_data = readlines("julia/puzzle03/puzzle03.txt")
+raw_data = readlines("data/puzzle03.txt")
 
 function solve(data::Vector{String}, strategy::Tuple{Int, Int})::Int
     x, y = 1, 1

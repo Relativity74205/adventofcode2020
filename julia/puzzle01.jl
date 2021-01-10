@@ -1,6 +1,6 @@
 import IterTools
 
-raw_data = readlines("julia/puzzle01/puzzle01.txt")
+raw_data = readlines("data/puzzle01.txt")
 data = [parse(Int, ele) for ele in raw_data]
 
 function solve(target_number, all_numbers, amount_numbers)

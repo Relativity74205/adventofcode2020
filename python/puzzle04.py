@@ -1,6 +1,20 @@
+from pathlib import Path
 import re
 
-from puzzle04 import passports, mandatory_keys
+with open(Path(__file__).parent.parent / "data" / "puzzle04.txt", "r") as f:
+    data = f.read()
+
+
+passports = {ele.replace('\n', ' ') for ele in data.split('\n\n')}
+
+mandatory_keys = {'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid'}
+
+
+def check_password(passport: str) -> bool:
+    passport_parts = passport.split(' ')
+    passport_keys = {passport_part.split(':')[0] for passport_part in passport_parts}.difference({'cid'})
+
+    return mandatory_keys == passport_keys
 
 
 def check_bounds(val: str, lower_bound: int, upper_bound: int):
@@ -28,7 +42,7 @@ def check_height(hgt: str):
     return True
 
 
-def check_password(passport: str) -> bool:
+def check_password_complex(passport: str) -> bool:
     passport_parts = passport.strip().split(' ')
     passport_dict = {passport_part.split(':')[0]: passport_part.split(':')[1] for passport_part in passport_parts}
 
@@ -61,5 +75,5 @@ def check_password(passport: str) -> bool:
     return True
 
 
-valid_passports = (check_password(passport) for passport in passports)
-print(f'{sum(valid_passports)=}')  # 137
+print(f'Solution for A is {sum(check_password(passport) for passport in passports)}')  # 202
+print(f'Solution for B is {sum(check_password_complex(passport) for passport in passports)}')  # 137

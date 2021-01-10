@@ -1,6 +1,6 @@
 import DataStructures
 
-raw_data = readlines("julia/puzzle02/puzzle02.txt")
+raw_data = readlines("data/puzzle02.txt")
 
 
 function check_password_entry_a(entry::String)::Bool
@@ -19,8 +19,5 @@ function check_password_entry_b(entry::String)::Bool
     return (password[policy_char_range[1]] == policy_char[1]) != (password[policy_char_range[2]] == policy_char[1])
 end
 
-
-results_a = (check_password_entry_a(ele) for ele in raw_data)
-results_b = (check_password_entry_b(ele) for ele in raw_data)
-println("Result for A is $(sum(results_a))")
-println("Result for B is $(sum(results_b))")
+println("Result for A is $(sum(check_password_entry_a(ele) for ele in raw_data))")
+println("Result for B is $(sum(check_password_entry_b(ele) for ele in raw_data))")
